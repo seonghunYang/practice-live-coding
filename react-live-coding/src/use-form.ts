@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useDebounce } from "./hooks/useDebounce";
 
 interface UseFormArgs<T> {
   defaultValues: T;
@@ -18,13 +19,17 @@ export function useForm<T>({ defaultValues, validate }: UseFormArgs<T>) {
     [K in keyof T]: string[];
   }>();
 
+  const debouncedHandleError = useDebounce({
+    fn: setErrors,
+    timeout: 200,
+  });
   const handleValueChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setValues((prev) => {
       const newValues = {
         ...prev,
         [e.target.name]: e.target.value,
       };
-      setErrors({ ...validate(newValues) });
+      debouncedHandleError({ ...validate(newValues) });
       return newValues;
     });
   };
