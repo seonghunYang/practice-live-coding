@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDebounce } from "./hooks/useDebounce";
+import { useThrottle } from "./hooks/useThrottle";
 
 interface UseFormArgs<T> {
   defaultValues: T;
@@ -51,7 +52,10 @@ export function useForm<T>({ defaultValues, validate }: UseFormArgs<T>) {
   return {
     values,
     errors,
-    handleValueChange,
+    handleValueChange: useThrottle({
+      callbackFn: handleValueChange,
+      timeout: 200,
+    }),
     handleSubmit,
   };
 }
